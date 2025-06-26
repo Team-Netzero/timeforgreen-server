@@ -16,7 +16,15 @@ export class AuthController {
 
     await this.userService.updateRefreshToken(username);
 
-    res.json({ accessToken: this.userService.getAccessToken(username) });
+    res.cookie('accessToken', this.userService.getAccessToken(username), {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+      path: '/',
+    });
+
+    res.send();
   }
 
   @Post('login')
@@ -26,9 +34,17 @@ export class AuthController {
       req.body.password,
     );
 
+    res.cookie('accessToken', this.userService.getAccessToken(username), {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+      path: '/',
+    });
+
     await this.userService.updateRefreshToken(username);
 
-    res.json({ accessToken: this.userService.getAccessToken(username) });
+    res.send();
   }
 
   @Post('logout')
@@ -36,12 +52,5 @@ export class AuthController {
     res.cookie('accessToken', '');
 
     res.send();
-  }
-
-  @Post('refresh')
-  async refresh(@Req() req: Request, @Res() res: Response) {
-    res.json({
-      accessToken: await this.authService.refresh(req.cookies['accessToken']),
-    });
   }
 }

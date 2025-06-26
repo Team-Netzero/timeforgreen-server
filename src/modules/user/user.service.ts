@@ -132,7 +132,7 @@ export class UserService {
     return this.jwtService.sign(
       { username: username },
       {
-        expiresIn: '15m',
+        expiresIn: '1d',
       },
     );
   }
