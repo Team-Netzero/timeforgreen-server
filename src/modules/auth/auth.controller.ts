@@ -9,7 +9,6 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    private readonly jwtService: JwtService,
   ) {}
 
   @Post('join')
