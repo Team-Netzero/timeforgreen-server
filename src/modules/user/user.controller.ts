@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Post, Req, Res } from '@nestjs/common';
+import { Controller, Delete, Get, Param, Post, Req, Res } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Request, Response } from 'express';
 
@@ -6,43 +6,60 @@ import { Request, Response } from 'express';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('room')
-  async createRoom(@Req() req: Request, @Res() res: Response) {
+  @Post(':username/room')
+  async createRoom(
+    @Param('username') username: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
     const roomId = await this.userService.createRoom(
-      req.body.username,
+      username,
       req.body.createRoomDto,
     );
 
     res.json({ roomId: roomId });
   }
 
-  @Post('mission')
-  async createMission(@Req() req: Request, @Res() res: Response) {
-    await this.userService.createMission(
-      req.body.username,
-      req.body.createMissionDto,
-    );
+  @Post(':username/mission')
+  async createMission(
+    @Param('username') username: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    await this.userService.createMission(username, req.body.createMissionDto);
 
     res.send();
   }
 
-  @Get('missions')
-  async getMissions(@Req() req: Request, @Res() res: Response) {
-    const missions = await this.userService.getMissions(req.body.username);
+  @Get(':username/missions')
+  async getMissions(
+    @Param('username') username: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const missions = await this.userService.getMissions(username);
 
     res.json(missions);
   }
 
-  @Get('rooms')
-  async getRooms(@Req() req: Request, @Res() res: Response) {
-    const rooms = await this.userService.getRooms(req.body.username);
+  @Get(':username/rooms')
+  async getRooms(
+    @Param('username') username: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const rooms = await this.userService.getRooms(username);
 
     res.json(rooms);
   }
 
-  @Delete()
-  async remove(@Req() req: Request, @Res() res: Response) {
-    await this.userService.remove(req.body.username);
+  @Delete(':username')
+  async remove(
+    @Param('username') username: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    await this.userService.remove(username);
     res.cookie('accessToken', '');
 
     res.send();
