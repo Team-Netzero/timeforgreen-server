@@ -44,9 +44,18 @@ export class UserService {
       throw new UnprocessableEntityException('Username already exists');
 
     const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const refreshToken = this.jwtService.sign(
+      { username: createUserDto.username },
+      {
+        expiresIn: '7d',
+      },
+    );
+
     const userInstance = this.userRepository.create({
       username: createUserDto.username,
       hashedPassword: hashedPassword,
+      refreshToken: refreshToken,
     });
 
     const user = await this.userRepository.save(userInstance);
@@ -55,7 +64,7 @@ export class UserService {
         'Failed to create user due to unknown error',
       );
 
-    return user.username;
+    return user;
   }
 
   async createRoom(username: string, createRoomDto: CreateRoomDto) {

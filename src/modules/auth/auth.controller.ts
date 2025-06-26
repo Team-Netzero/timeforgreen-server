@@ -12,11 +12,11 @@ export class AuthController {
 
   @Post('join')
   async join(@Req() req: Request, @Res() res: Response) {
-    const username = await this.userService.create(req.body.createUserDto);
+    const user = await this.userService.create(req.body.createUserDto);
+    console.log(user.username);
+    console.log(user.refreshToken);
 
-    await this.userService.updateRefreshToken(username);
-
-    res.cookie('accessToken', this.userService.getAccessToken(username), {
+    res.cookie('accessToken', this.userService.getAccessToken(user.username), {
       httpOnly: true,
       sameSite: 'lax',
       secure: false,
