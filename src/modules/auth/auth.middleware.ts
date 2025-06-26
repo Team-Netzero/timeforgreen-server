@@ -27,8 +27,8 @@ export class AuthMiddleware implements NestMiddleware {
         const newAccessToken = this.userService.getAccessToken(user.username);
         res.cookie('accessToken', newAccessToken, {
           httpOnly: true,
-          sameSite: 'none',
-          secure: true,
+          sameSite: 'lax',
+          secure: false,
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
           path: '/',
         });
