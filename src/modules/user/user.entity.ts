@@ -7,7 +7,7 @@ export class User {
   @PrimaryColumn()
   username: string;
 
-  @Column()
+  @Column({ nullable: true })
   profileImage: string;
 
   @Column()
