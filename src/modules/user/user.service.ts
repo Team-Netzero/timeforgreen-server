@@ -15,14 +15,23 @@ import { Mission } from '../mission/mission.entity';
 import { ReturnMissionDto } from '../mission/dto/return-mission.dto';
 import { CreateMissionDto } from '../mission/dto/create-mission.dto';
 import { Room } from '../room/room.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class UserService {
   constructor(
+    @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    @InjectRepository(Mission)
     private readonly missionRepository: Repository<Mission>,
+
+    @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
+
+    @InjectRepository(UserRoomRelation)
     private readonly userRoomRelationRepository: Repository<UserRoomRelation>,
+
     private readonly jwtService: JwtService,
   ) {}
   async create(createUserDto: CreateUserDto) {
