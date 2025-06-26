@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
 import { Room } from './room.entity';
 import { Mission } from '../mission/mission.entity';
+import { User } from '../user/user.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([UserRoomRelation, Room, Mission])],
+  imports: [TypeOrmModule.forFeature([UserRoomRelation, Room, Mission, User])],
   controllers: [RoomController],
   providers: [RoomService],
 })

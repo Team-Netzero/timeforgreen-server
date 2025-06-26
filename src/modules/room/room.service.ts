@@ -7,12 +7,17 @@ import { Room } from './room.entity';
 import { TransferRoomDto } from './dto/transfer-room.dto';
 import { Mission } from '../mission/mission.entity';
 import { ReturnMissionDto } from '../mission/dto/return-mission.dto';
+import { User } from '../user/user.entity';
+import { ReturnUserDto } from '../user/dto/return-user.dto';
 
 @Injectable()
 export class RoomService {
   constructor(
     @InjectRepository(UserRoomRelation)
     private readonly userRoomRelationRepository: Repository<UserRoomRelation>,
+
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
 
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
@@ -37,6 +42,24 @@ export class RoomService {
     });
 
     return roomDtos;
+  }
+
+  async getUsers(roomId: string) {
+    const users = await this.userRepository.find({
+      where: { userRoomRelations: { room: { id: roomId } } },
+      relations: {
+        userRoomRelations: true,
+      },
+    });
+
+    return users.map(async (user) => {
+      const userRoomRelation = await this.userRoomRelationRepository.findOneBy({
+        user: { username: user.username },
+        room: { id: roomId },
+      });
+      const role = userRoomRelation!.role;
+      return new ReturnUserDto(user, role);
+    });
   }
 
   async getMissions(roomId: string) {

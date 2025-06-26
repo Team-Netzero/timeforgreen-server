@@ -35,6 +35,13 @@ export class RoomController {
     res.json(missions);
   }
 
+  @Get(':id/users')
+  async getUsers(@Param('id') id: string, @Res() res: Response) {
+    const users = await this.roomService.getUsers(id);
+
+    res.json(users);
+  }
+
   @Post(':id/user')
   async addUser(
     @Param('id') id: string,
