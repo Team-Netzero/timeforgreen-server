@@ -24,16 +24,24 @@ export class RoomController {
     res.json(rooms);
   }
 
-  @Post('user')
-  async addUser(@Req() req: Request, @Res() res: Response) {
-    await this.roomService.addUser(req.body.username, req.body.roomId);
+  @Post(':id/user')
+  async addUser(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    await this.roomService.addUser(req.body.username, id);
 
     res.send();
   }
 
-  @Delete('user')
-  async removeUser(@Req() req: Request, @Res() res: Response) {
-    await this.roomService.removeUser(req.body.username, req.body.roomId);
+  @Delete(':id/user')
+  async removeUser(
+    @Param('id') id: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    await this.roomService.removeUser(req.body.username, id);
 
     res.send();
   }
