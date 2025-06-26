@@ -1,16 +1,38 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Repository } from 'typeorm';
+import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
+import { Role } from 'src/commons/enums/role';
 
 @Injectable()
 export class RoomService {
-  findAll() {
-    return `This action returns all room`;
+  constructor(
+    private readonly userRoomRelationRepository: Repository<UserRoomRelation>,
+  ) {}
+
+  async addUser(username: string, roomId: string) {
+    const userRoomRelationInstance = this.userRoomRelationRepository.create({
+      user: { username: username },
+      room: { id: roomId },
+      role: Role.PARTICIPANT,
+    });
+
+    const userRoomRelation = await this.userRoomRelationRepository.save(
+      userRoomRelationInstance,
+    );
+    if (!userRoomRelation)
+      throw new InternalServerErrorException(
+        'Adding user failed due to unknown error',
+      );
+
+    return;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} room`;
-  }
+  async removeUser(username: string, roomId: string) {
+    await this.userRoomRelationRepository.delete({
+      user: { username: username },
+      room: { id: roomId },
+    });
 
-  remove(id: number) {
-    return `This action removes a #${id} room`;
+    return;
   }
 }

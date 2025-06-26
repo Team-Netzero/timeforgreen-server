@@ -1,19 +1,10 @@
-import {
-  Column,
-  Entity,
-  ManyToMany,
-  OneToMany,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryColumn } from 'typeorm';
 import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
 import { Mission } from '../mission/mission.entity';
 
 @Entity()
 export class User {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column()
+  @PrimaryColumn()
   username: string;
 
   @Column()

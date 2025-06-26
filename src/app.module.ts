@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,6 +12,7 @@ import { FilesModule } from './modules/file/files.module';
 import { RoomModule } from './modules/room/room.module';
 import { UserModule } from './modules/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthMiddleware } from './modules/auth/auth.middleware';
 
 @Module({
   imports: [
@@ -41,4 +42,8 @@ import { JwtModule } from '@nestjs/jwt';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(AuthMiddleware).exclude('/auth/*path').forRoutes('*path');
+  }
+}
