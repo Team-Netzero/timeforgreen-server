@@ -11,11 +11,15 @@ import * as bcrypt from 'bcrypt';
 import { TransferUserDto } from './dto/transfer-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
+import { Subject } from 'src/commons/enums/subject';
+import { Mission } from '../mission/mission.entity';
+import { ReturnMissionDto } from '../mission/dto/return-mission.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: Repository<User>,
+    private readonly missionRepository: Repository<Mission>,
     private readonly userRoomRelationRepository: Repository<UserRoomRelation>,
     private readonly jwtService: JwtService,
   ) {}
@@ -48,6 +52,20 @@ export class UserService {
     const user = await this.userRepository.findOneBy({ username: username });
     if (!user) throw new NotFoundException('User not found');
     return new TransferUserDto(user);
+  }
+
+  async getMissions(username: string) {
+    const missions = await this.missionRepository.find({
+      where: { user: { username: username } },
+      relations: { room: true },
+    });
+    return missions.map((mission) => {
+      return new ReturnMissionDto(
+        mission,
+        mission.user.username,
+        mission.room.id,
+      );
+    });
   }
 
   getAccessToken(username: string) {
