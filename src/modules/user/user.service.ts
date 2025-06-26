@@ -88,7 +88,7 @@ export class UserService {
       role: Role.HOST,
     });
 
-    const userRoomRelation = this.userRoomRelationRepository.save(
+    const userRoomRelation = await this.userRoomRelationRepository.save(
       userRoomRelationInstance,
     );
     console.log(userRoomRelation);
