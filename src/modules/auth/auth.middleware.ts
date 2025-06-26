@@ -17,7 +17,6 @@ export class AuthMiddleware implements NestMiddleware {
     try {
       const payload = this.jwtService.verify(req.cookies['accessToken']);
       console.log(payload);
-      req.body.username = payload.username;
     } catch (e) {
       console.log(e);
       const decoded = this.jwtService.decode(req.cookies['accessToken']);
@@ -34,8 +33,6 @@ export class AuthMiddleware implements NestMiddleware {
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
           path: '/',
         });
-
-        req.body.username = decoded.username;
       } catch {
         throw new UnauthorizedException('Refresh token expired');
       }
