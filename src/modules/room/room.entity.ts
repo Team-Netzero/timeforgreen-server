@@ -1,6 +1,7 @@
 import { Subject } from 'src/commons/enums/subject';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
+import { Mission } from '../mission/mission.entity';
 
 @Entity()
 export class Room {
@@ -21,4 +22,7 @@ export class Room {
     (userRoomRelation) => userRoomRelation.room,
   )
   userRoomRelations: UserRoomRelation[];
+
+  @OneToMany(() => Mission, (mission) => mission.room)
+  missions: Mission[];
 }

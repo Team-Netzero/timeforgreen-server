@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
+import { Mission } from '../mission/mission.entity';
 
 @Entity()
 export class User {
@@ -29,4 +30,7 @@ export class User {
     (userRoomRelation) => userRoomRelation.user,
   )
   userRoomRelations: UserRoomRelation[];
+
+  @OneToMany(() => Mission, (mission) => mission.user)
+  missions: Mission[];
 }
