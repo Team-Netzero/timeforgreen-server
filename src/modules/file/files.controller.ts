@@ -37,10 +37,15 @@ export class FilesController {
   @Post('check-plugged')
   @UseInterceptors(FileInterceptor('file'))
   async checkPlugged(@UploadedFile() file: Express.Multer.File) {
-    if (!file) {
-      throw new Error('파일이 업로드되지 않았습니다.');
+    try {
+      if (!file) {
+        throw new Error('파일이 업로드되지 않았습니다.');
+      }
+      return await this.filesService.checkPlugged(file);
+    } catch (err) {
+      console.error('checkPlugged error:', err);
+      throw err;
     }
-    return this.filesService.checkPlugged(file);
   }
 
   @Get('sas-url')
