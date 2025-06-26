@@ -11,11 +11,14 @@ import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { TransferUserDto } from './dto/transfer-user.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
+import { TransferRoomDto } from '../room/dto/transfer-room.dto';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: Repository<User>,
+    private readonly userRoomRelationRepository: Repository<UserRoomRelation>,
     private readonly jwtService: JwtService,
   ) {}
   async create(createUserDto: CreateUserDto) {
@@ -43,18 +46,10 @@ export class UserService {
     return `This action returns all user`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
-
-  async findOneByUsername(username: string) {
+  async findOne(username: string) {
     const user = await this.userRepository.findOneBy({ username: username });
     if (!user) throw new NotFoundException('User not found');
     return new TransferUserDto(user);
-  }
-
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
   }
 
   getAccessToken(username: string) {
@@ -64,6 +59,35 @@ export class UserService {
         expiresIn: '15m',
       },
     );
+  }
+
+  async getAllRooms(username: string) {
+    const user = await this.userRepository.findOne({
+      where: {
+        username: username,
+      },
+      relations: {
+        userRoomRelations: true,
+      },
+    });
+
+    if (!user) throw new NotFoundException('User not found');
+    const userRoomRelations = user.userRoomRelations;
+
+    const rooms = await Promise.all(
+      userRoomRelations.map(async (userRoomRelation) => {
+        return await this.userRoomRelationRepository.findOne({
+          where: {
+            id: userRoomRelation.id,
+          },
+          relations: {
+            room: true,
+          },
+        });
+      }),
+    );
+
+    return rooms;
   }
 
   async updateRefreshToken(username: string) {
@@ -81,7 +105,8 @@ export class UserService {
     return;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(username: string) {
+    await this.userRepository.delete({ username: username });
+    return;
   }
 }

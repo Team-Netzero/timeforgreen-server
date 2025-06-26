@@ -7,7 +7,7 @@ export class AuthService {
   constructor(private readonly userService: UserService) {}
 
   async validatePassword(username: string, password: string) {
-    const user = await this.userService.findOneByUsername(username);
+    const user = await this.userService.findOne(username);
     if (!(await bcrypt.compare(password, user.hashedPassword)))
       throw new UnauthorizedException('Invalid password');
 

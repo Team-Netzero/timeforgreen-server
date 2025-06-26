@@ -20,7 +20,7 @@ export class AuthMiddleware implements NestMiddleware {
     } catch {
       const decoded = this.jwtService.decode(req.cookies['accessToken']);
 
-      const user = await this.userService.findOneByUsername(decoded.username);
+      const user = await this.userService.findOne(decoded.username);
       try {
         await this.jwtService.verify(user.refreshToken!);
 
