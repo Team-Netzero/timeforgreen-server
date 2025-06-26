@@ -5,14 +5,12 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { TransferUserDto } from './dto/transfer-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
-import { TransferRoomDto } from '../room/dto/transfer-room.dto';
 
 @Injectable()
 export class UserService {

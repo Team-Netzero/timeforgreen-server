@@ -22,7 +22,7 @@ export class User {
   hashedPassword: string;
 
   @Column({ nullable: true })
-  refreshToken: string | null;
+  refreshToken: string;
 
   @OneToMany(
     () => UserRoomRelation,
