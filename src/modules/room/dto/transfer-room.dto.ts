@@ -4,12 +4,12 @@ import { Room } from '../room.entity';
 export class TransferRoomDto {
   constructor(room: Room) {
     this.id = room.id;
-    this.subject = room.subject;
+    this.title = room.title;
     this.activated = room.activated;
     this.allowNotificationAt = room.allowNotificationAt;
   }
   id: string;
-  subject: Subject;
+  title: string;
   activated: boolean;
   allowNotificationAt: string;
 }

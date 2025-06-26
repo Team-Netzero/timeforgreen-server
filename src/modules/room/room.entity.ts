@@ -9,7 +9,7 @@ export class Room {
   id: string;
 
   @Column()
-  subject: Subject;
+  title: string;
 
   @Column()
   activated: boolean;
