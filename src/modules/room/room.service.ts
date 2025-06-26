@@ -5,6 +5,7 @@ import { Role } from 'src/commons/enums/role';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from './room.entity';
 import { TransferRoomDto } from './dto/transfer-room.dto';
+import { Mission } from '../mission/mission.entity';
 
 @Injectable()
 export class RoomService {
@@ -14,6 +15,9 @@ export class RoomService {
 
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
+
+    @InjectRepository(Mission)
+    private readonly missionRepository: Repository<Mission>,
   ) {}
 
   async findBySearch(search: string) {
@@ -33,6 +37,8 @@ export class RoomService {
 
     return roomDtos;
   }
+
+  async getMission(roomId: string) {}
 
   async addUser(username: string, roomId: string) {
     const userRoomRelationInstance = this.userRoomRelationRepository.create({
