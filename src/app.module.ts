@@ -13,6 +13,7 @@ import { RoomModule } from './modules/room/room.module';
 import { UserModule } from './modules/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthMiddleware } from './modules/auth/auth.middleware';
+import * as cookieParser from 'cookie-parser';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { AuthMiddleware } from './modules/auth/auth.middleware';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
+    consumer.apply(cookieParser()).forRoutes('*');
     consumer.apply(AuthMiddleware).exclude('/auth/*path').forRoutes('*path');
   }
 }
