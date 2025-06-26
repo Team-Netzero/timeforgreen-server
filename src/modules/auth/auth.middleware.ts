@@ -14,8 +14,6 @@ export class AuthMiddleware implements NestMiddleware {
     private readonly userService: UserService,
   ) {}
   async use(req: Request, res: Response, next: NextFunction) {
-    if (!req.cookies || !req.cookies['accessToken'])
-      throw new UnauthorizedException('Access token not found');
     try {
       const payload = this.jwtService.verify(req.cookies['accessToken']);
       req.body.username = payload.username;
