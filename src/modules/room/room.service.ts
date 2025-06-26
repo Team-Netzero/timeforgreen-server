@@ -9,6 +9,8 @@ export class RoomService {
     private readonly userRoomRelationRepository: Repository<UserRoomRelation>,
   ) {}
 
+  // async findByKeywords()
+
   async addUser(username: string, roomId: string) {
     const userRoomRelationInstance = this.userRoomRelationRepository.create({
       user: { username: username },
