@@ -54,15 +54,20 @@ export class RoomService {
 
     console.log(users);
 
-    return users.map(async (user) => {
-      const userRoomRelation = await this.userRoomRelationRepository.findOneBy({
-        user: { username: user.username },
-        room: { id: roomId },
-      });
-      console.log(userRoomRelation);
-      const role = userRoomRelation!.role;
-      return new ReturnUserDto(user, role);
-    });
+    const userDtos = await Promise.all(
+      users.map(async (user) => {
+        const userRoomRelation =
+          await this.userRoomRelationRepository.findOneBy({
+            user: { username: user.username },
+            room: { id: roomId },
+          });
+        console.log(userRoomRelation);
+        const role = userRoomRelation!.role;
+        return new ReturnUserDto(user, role);
+      }),
+    );
+
+    return userDtos;
   }
 
   async getMissions(roomId: string) {
