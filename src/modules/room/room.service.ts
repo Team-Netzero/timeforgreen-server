@@ -6,6 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from './room.entity';
 import { TransferRoomDto } from './dto/transfer-room.dto';
 import { Mission } from '../mission/mission.entity';
+import { ReturnMissionDto } from '../mission/dto/return-mission.dto';
 
 @Injectable()
 export class RoomService {
@@ -38,7 +39,13 @@ export class RoomService {
     return roomDtos;
   }
 
-  async getMission(roomId: string) {}
+  async getMissions(roomId: string) {
+    const missions = await this.missionRepository.findBy({
+      room: { id: roomId },
+    });
+
+    return missions.map((mission) => new ReturnMissionDto(mission));
+  }
 
   async addUser(username: string, roomId: string) {
     const userRoomRelationInstance = this.userRoomRelationRepository.create({

@@ -16,7 +16,7 @@ export class AuthMiddleware implements NestMiddleware {
   async use(req: Request, res: Response, next: NextFunction) {
     try {
       const payload = this.jwtService.verify(req.cookies['accessToken']);
-      req.body.id = payload.username;
+      req.body.username = payload.username;
     } catch {
       const decoded = this.jwtService.decode(req.cookies['accessToken']);
 
