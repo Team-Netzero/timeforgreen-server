@@ -12,10 +12,17 @@ services:
     env_file:
       - .env
 
-  my-database:
+  postgres:
     image: postgres:latest
+    restart: always
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
     environment:
-      MYSQL_DATABASE: 'timeforgreen'
-      MYSQL_ROOT_PASSWORD: 'timeforgreenpassword'
+      POSTGRES_USER: timeforgreen
+      POSTGRES_DB: timeforgreen
+      POSTGRES_PASSWORD: timeforgreenpassword
     ports:
-      - 5432:5432
+      - '5432:5432'
+
+volumes:
+  postgres-data:
