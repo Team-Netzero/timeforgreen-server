@@ -18,6 +18,7 @@ import { Room } from '../room/room.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TransferRoomDto } from '../room/dto/transfer-room.dto';
 import { CreateRoomDto } from '../room/dto/create-room.dto';
+import { Role } from 'src/commons/enums/role';
 
 @Injectable()
 export class UserService {
@@ -70,7 +71,21 @@ export class UserService {
         'Creating room failed due to unknown error',
       );
 
-    const userRoomRelationInstance = await this.userRoomRelationRepository;
+    const userRoomRelationInstance = this.userRoomRelationRepository.create({
+      user: { username: username },
+      room: { id: room.id },
+      role: Role.HOST,
+    });
+
+    const userRoomRelation = this.userRoomRelationRepository.save(
+      userRoomRelationInstance,
+    );
+    if (!userRoomRelation)
+      throw new InternalServerErrorException(
+        'Creating room relation failed due to unknown error',
+      );
+
+    return room.id;
   }
 
   async createMission(username: string, createMissionDto: CreateMissionDto) {

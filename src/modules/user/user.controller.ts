@@ -8,12 +8,12 @@ export class UserController {
 
   @Post('room')
   async createRoom(@Req() req: Request, @Res() res: Response) {
-    await this.userService.createRoom(
+    const roomId = await this.userService.createRoom(
       req.body.username,
       req.body.createRoomDto,
     );
 
-    res.send();
+    res.json({ roomId: roomId });
   }
 
   @Post('mission')
