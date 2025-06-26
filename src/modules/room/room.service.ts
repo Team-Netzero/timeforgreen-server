@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
 import { Role } from 'src/commons/enums/role';
@@ -42,6 +46,12 @@ export class RoomService {
     });
 
     return roomDtos;
+  }
+
+  async getRoom(roomId: string) {
+    const room = await this.roomRepository.findOneBy({ id: roomId });
+    if (!room) throw new NotFoundException('Room not found');
+    return new TransferRoomDto(room);
   }
 
   async getUsers(roomId: string) {

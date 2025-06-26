@@ -5,7 +5,7 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { TransferUserDto } from './dto/transfer-user.dto';
@@ -19,6 +19,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { TransferRoomDto } from '../room/dto/transfer-room.dto';
 import { CreateRoomDto } from '../room/dto/create-room.dto';
 import { Role } from 'src/commons/enums/role';
+import { startOfDay, endOfDay } from 'date-fns';
 
 @Injectable()
 export class UserService {
@@ -135,6 +136,20 @@ export class UserService {
       where: { user: { username: username } },
       relations: { room: true },
     });
+    return missions.map((mission) => {
+      return new ReturnMissionDto(mission);
+    });
+  }
+
+  async getMissionsForToday(username: string) {
+    const missions = await this.missionRepository.find({
+      where: {
+        user: { username: username },
+        createdAt: Between(startOfDay(new Date()), endOfDay(new Date())),
+      },
+      relations: { room: true },
+    });
+
     return missions.map((mission) => {
       return new ReturnMissionDto(mission);
     });

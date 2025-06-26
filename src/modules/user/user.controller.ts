@@ -31,6 +31,16 @@ export class UserController {
     res.send();
   }
 
+  @Get(':username/mission/today')
+  async getMissionsForToday(
+    @Param('username') username: string,
+    @Res() res: Response,
+  ) {
+    const missions = await this.userService.getMissionsForToday(username);
+
+    res.json(missions);
+  }
+
   @Get(':username/missions')
   async getMissions(
     @Param('username') username: string,

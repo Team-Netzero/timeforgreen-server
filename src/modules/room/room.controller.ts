@@ -24,6 +24,11 @@ export class RoomController {
     res.json(rooms);
   }
 
+  @Get(':id')
+  async getRoom(@Param('id') id: string, @Res() res: Response) {
+    return await this.roomService.getRoom(id);
+  }
+
   @Get(':id/missions')
   async getMissions(
     @Param('id') id: string,
