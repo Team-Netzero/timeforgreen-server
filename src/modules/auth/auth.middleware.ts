@@ -38,7 +38,7 @@ export class AuthMiddleware implements NestMiddleware {
       } catch {
         throw new UnauthorizedException('Refresh token expired');
       }
-      next();
     }
+    next();
   }
 }
