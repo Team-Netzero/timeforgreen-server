@@ -10,10 +10,14 @@ import { Repository } from 'typeorm';
 import { User } from './user.entity';
 import * as bcrypt from 'bcrypt';
 import { TransferUserDto } from './dto/transfer-user.dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: Repository<User>) {}
+  constructor(
+    private readonly userRepository: Repository<User>,
+    private readonly jwtService: JwtService,
+  ) {}
   async create(createUserDto: CreateUserDto) {
     if (
       await this.userRepository.existsBy({ username: createUserDto.username })
@@ -53,7 +57,23 @@ export class UserService {
     return `This action updates a #${id} user`;
   }
 
-  async updateRefreshToken(username: string, refreshToken: string) {
+  getAccessToken(username: string) {
+    return this.jwtService.sign(
+      { username: username },
+      {
+        expiresIn: '15m',
+      },
+    );
+  }
+
+  async updateRefreshToken(username: string) {
+    const refreshToken = this.jwtService.sign(
+      { username: username },
+      {
+        expiresIn: '7d',
+      },
+    );
+
     await this.userRepository.update(
       { username: username },
       { refreshToken: refreshToken },

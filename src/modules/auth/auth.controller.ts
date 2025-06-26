@@ -12,6 +12,20 @@ export class AuthController {
     private readonly jwtService: JwtService,
   ) {}
 
+  @Post('join')
+  async join(@Req() req: Request, @Res() res: Response) {
+    const username = await this.userService.create(req.body.createUserDto);
+
+    res.cookie('accessToken', this.userService.getAccessToken(username), {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+    });
+
+    await this.userService.updateRefreshToken(username);
+  }
+
   @Post('login')
   async login(@Req() req: Request, @Res() res: Response) {
     const username = await this.authService.validatePassword(
@@ -19,33 +33,14 @@ export class AuthController {
       req.body.password,
     );
 
-    const accessToken = this.jwtService.sign(
-      { username: username },
-      {
-        expiresIn: '15m',
-      },
-    );
-
-    const refreshToken = this.jwtService.sign(
-      { username: username },
-      {
-        expiresIn: '7d',
-      },
-    );
-
-    res.cookie('accessToken', accessToken, {
+    res.cookie('accessToken', this.userService.getAccessToken(username), {
       httpOnly: true,
       sameSite: 'lax',
       secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
     });
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: false,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
-    });
+    await this.userService.updateRefreshToken(username);
 
     res.send();
   }
