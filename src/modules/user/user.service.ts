@@ -91,6 +91,7 @@ export class UserService {
     const userRoomRelation = this.userRoomRelationRepository.save(
       userRoomRelationInstance,
     );
+    console.log(userRoomRelation);
     if (!userRoomRelation)
       throw new InternalServerErrorException(
         'Creating room relation failed due to unknown error',

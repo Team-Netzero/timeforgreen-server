@@ -52,6 +52,8 @@ export class RoomService {
       },
     });
 
+    console.log(users);
+
     return users.map(async (user) => {
       const userRoomRelation = await this.userRoomRelationRepository.findOneBy({
         user: { username: user.username },
