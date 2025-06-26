@@ -8,7 +8,7 @@ services:
       - /myfolder/node_modules # node_modules는 host에 덮어쓰지 않게 격리
 
     ports:
-      - 5500:5500
+      - 50000:50000
     env_file:
       - .env
 
