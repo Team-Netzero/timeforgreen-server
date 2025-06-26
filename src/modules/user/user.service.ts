@@ -68,6 +68,8 @@ export class UserService {
   }
 
   async createRoom(username: string, createRoomDto: CreateRoomDto) {
+    if (!(await this.userRepository.existsBy({ username: username })))
+      throw new NotFoundException('User not exist');
     const roomInstance = this.roomRepository.create({
       title: createRoomDto.title,
       activated: true,
