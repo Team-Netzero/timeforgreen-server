@@ -6,6 +6,16 @@ import { Request, Response } from 'express';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Post('room')
+  async createRoom(@Req() req: Request, @Res() res: Response) {
+    await this.userService.createRoom(
+      req.body.username,
+      req.body.createRoomDto,
+    );
+
+    res.send();
+  }
+
   @Post('mission')
   async createMission(@Req() req: Request, @Res() res: Response) {
     await this.userService.createMission(

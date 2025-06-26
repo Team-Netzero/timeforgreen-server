@@ -24,12 +24,12 @@ export class AuthMiddleware implements NestMiddleware {
       try {
         await this.jwtService.verify(user.refreshToken!);
 
-        const newAccessToken = this.jwtService.sign(user.username);
+        const newAccessToken = this.userService.getAccessToken(user.username);
         res.cookie('accessToken', newAccessToken, {
           httpOnly: true,
           sameSite: 'lax',
           secure: false,
-          maxAge: 1000 * 60 * 60 * 7,
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
         });
 
         req.body.username = decoded.username;

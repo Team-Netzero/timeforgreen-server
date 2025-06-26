@@ -17,6 +17,7 @@ import { CreateMissionDto } from '../mission/dto/create-mission.dto';
 import { Room } from '../room/room.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TransferRoomDto } from '../room/dto/transfer-room.dto';
+import { CreateRoomDto } from '../room/dto/create-room.dto';
 
 @Injectable()
 export class UserService {
@@ -54,6 +55,20 @@ export class UserService {
       );
 
     return user.username;
+  }
+
+  async createRoom(username: string, createRoomDto: CreateRoomDto) {
+    const roomInstance = this.roomRepository.create({
+      title: createRoomDto.title,
+      activated: true,
+      allowNotificationAt: createRoomDto.allowNotificationAt,
+    });
+
+    const room = await this.roomRepository.save(roomInstance);
+    if (!room)
+      throw new InternalServerErrorException(
+        'Creating room failed due to unknown error',
+      );
   }
 
   async createMission(username: string, createMissionDto: CreateMissionDto) {
