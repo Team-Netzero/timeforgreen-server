@@ -6,6 +6,9 @@ import { Request, Response } from 'express';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Post('mission')
+  async createMission(@Req() req: Request, @Res() res: Response) {}
+
   @Get('missions')
   async getMissions(@Req() req: Request, @Res() res: Response) {
     const missionCounts = await this.userService.getMissions(req.body.username);

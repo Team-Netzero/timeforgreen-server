@@ -11,15 +11,17 @@ import * as bcrypt from 'bcrypt';
 import { TransferUserDto } from './dto/transfer-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
-import { Subject } from 'src/commons/enums/subject';
 import { Mission } from '../mission/mission.entity';
 import { ReturnMissionDto } from '../mission/dto/return-mission.dto';
+import { CreateMissionDto } from '../mission/dto/create-mission.dto';
+import { Room } from '../room/room.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: Repository<User>,
     private readonly missionRepository: Repository<Mission>,
+    private readonly roomRepository: Repository<Room>,
     private readonly userRoomRelationRepository: Repository<UserRoomRelation>,
     private readonly jwtService: JwtService,
   ) {}
@@ -42,6 +44,23 @@ export class UserService {
       );
 
     return user.username;
+  }
+
+  async createMission(username: string, createMissionDto: CreateMissionDto) {
+    const user = await this.userRepository.findOneBy({ username: username });
+    if (!user) throw new NotFoundException('User not found');
+
+    const room = await this.roomRepository.findOneBy({
+      id: createMissionDto.roomId,
+    });
+
+    /*
+    const missionInstance = this.missionRepository.create({
+      subject: createMissionDto.subject,
+      user: user,
+      room: room,
+    });
+    */
   }
 
   findAll() {
