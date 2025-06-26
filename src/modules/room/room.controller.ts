@@ -19,7 +19,7 @@ export class RoomController {
   /*
   @Get('search')
   async searchRooms(@Req() req: Request, @Res() res: Response) {
-    return await this.roomService.findBySearch(req.body.search)
+    return await this.roomService.findBySearch(req.body.search);
   }
     */
 

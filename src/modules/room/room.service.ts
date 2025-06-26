@@ -2,14 +2,20 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { UserRoomRelation } from '../user-room-relation/user-room-relation.entity';
 import { Role } from 'src/commons/enums/role';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class RoomService {
   constructor(
+    @InjectRepository(UserRoomRelation)
     private readonly userRoomRelationRepository: Repository<UserRoomRelation>,
   ) {}
 
-  // async findByKeywords()
+  /*
+  async findBySearch(search: string) {
+    const keywords = 
+  }
+    */
 
   async addUser(username: string, roomId: string) {
     const userRoomRelationInstance = this.userRoomRelationRepository.create({
