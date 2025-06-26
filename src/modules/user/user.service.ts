@@ -92,11 +92,7 @@ export class UserService {
       relations: { room: true },
     });
     return missions.map((mission) => {
-      return new ReturnMissionDto(
-        mission,
-        mission.user.username,
-        mission.room.id,
-      );
+      return new ReturnMissionDto(mission);
     });
   }
 
