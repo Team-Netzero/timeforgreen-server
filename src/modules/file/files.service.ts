@@ -9,6 +9,7 @@ import {
   StorageSharedKeyCredential,
 } from '@azure/storage-blob';
 import { v4 as uuidv4 } from 'uuid';
+import fetch from 'node-fetch';
 
 @Injectable()
 export class FilesService {
@@ -111,5 +112,56 @@ export class FilesService {
     }
 
     return fileNames;
+  }
+
+  async checkPlugged(
+    file: Express.Multer.File,
+  ): Promise<{ isPlugged: boolean }> {
+    const apiKey = this.configService.get<string>('OPENAI_API_KEY');
+    if (!apiKey) {
+      throw new Error('OPENAI_API_KEY 환경변수가 필요합니다.');
+    }
+    // OpenAI Vision API 엔드포인트
+    const url = 'https://api.openai.com/v1/chat/completions';
+    // 프롬프트: 플러그가 꽂혀있는지 여부를 묻는 질문
+    const prompt =
+      '이 사진에서 플러그가 콘센트에 꽂혀 있나요? "뽑혀있으면 뽑혀있다, 아니면 꽂혀있다"로만 답해주세요.';
+    // base64 인코딩
+    const base64Image = file.buffer.toString('base64');
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4-vision-preview',
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: prompt },
+              {
+                type: 'image_url',
+                image_url: {
+                  url: `data:${file.mimetype};base64,${base64Image}`,
+                },
+              },
+            ],
+          },
+        ],
+        max_tokens: 10,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error('OpenAI API 호출 실패: ' + response.statusText);
+    }
+    const data = (await response.json()) as {
+      choices?: { message?: { content?: string } }[];
+    };
+    const text = data.choices?.[0]?.message?.content?.trim?.() || '';
+    // "뽑혀있다"라는 단어가 포함되어 있으면 true, 아니면 false
+    const isPlugged = typeof text === 'string' && text.includes('뽑혀');
+    return { isPlugged: !!isPlugged };
   }
 }
