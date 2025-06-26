@@ -16,8 +16,8 @@ export class AuthController {
 
     res.cookie('accessToken', this.userService.getAccessToken(username), {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: false,
+      sameSite: 'none',
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
       path: '/',
     });
@@ -36,8 +36,8 @@ export class AuthController {
 
     res.cookie('accessToken', this.userService.getAccessToken(username), {
       httpOnly: true,
-      sameSite: 'lax',
-      secure: false,
+      sameSite: 'none',
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
       path: '/',
     });

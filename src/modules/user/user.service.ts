@@ -69,6 +69,8 @@ export class UserService {
       throw new InternalServerErrorException(
         'Creating room failed due to unknown error',
       );
+
+    const userRoomRelationInstance = await this.userRoomRelationRepository;
   }
 
   async createMission(username: string, createMissionDto: CreateMissionDto) {
