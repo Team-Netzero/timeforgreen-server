@@ -53,6 +53,14 @@ export class UserService {
     return `This action updates a #${id} user`;
   }
 
+  async updateRefreshToken(username: string, refreshToken: string) {
+    await this.userRepository.update(
+      { username: username },
+      { refreshToken: refreshToken },
+    );
+    return;
+  }
+
   remove(id: number) {
     return `This action removes a #${id} user`;
   }
