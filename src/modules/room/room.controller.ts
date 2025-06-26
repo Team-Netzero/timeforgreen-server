@@ -19,7 +19,9 @@ export class RoomController {
 
   @Get('search')
   async searchRooms(@Req() req: Request, @Res() res: Response) {
-    return await this.roomService.findBySearch(req.body.search);
+    const rooms = await this.roomService.findBySearch(req.body.search);
+
+    res.json(rooms);
   }
 
   @Post('user')

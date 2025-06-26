@@ -18,9 +18,16 @@ export class UserController {
 
   @Get('missions')
   async getMissions(@Req() req: Request, @Res() res: Response) {
-    const missionCounts = await this.userService.getMissions(req.body.username);
+    const missions = await this.userService.getMissions(req.body.username);
 
-    res.json(missionCounts);
+    res.json(missions);
+  }
+
+  @Get('rooms')
+  async getRooms(@Req() req: Request, @Res() res: Response) {
+    const rooms = await this.userService.getRooms(req.body.username);
+
+    res.json(rooms);
   }
 
   @Delete()

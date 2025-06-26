@@ -16,6 +16,7 @@ import { ReturnMissionDto } from '../mission/dto/return-mission.dto';
 import { CreateMissionDto } from '../mission/dto/create-mission.dto';
 import { Room } from '../room/room.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { TransferRoomDto } from '../room/dto/transfer-room.dto';
 
 @Injectable()
 export class UserService {
@@ -79,10 +80,6 @@ export class UserService {
     return;
   }
 
-  findAll() {
-    return `This action returns all user`;
-  }
-
   async findOne(username: string) {
     const user = await this.userRepository.findOneBy({ username: username });
     if (!user) throw new NotFoundException('User not found');
@@ -112,33 +109,12 @@ export class UserService {
     );
   }
 
-  async getAllRooms(username: string) {
-    const user = await this.userRepository.findOne({
-      where: {
-        username: username,
-      },
-      relations: {
-        userRoomRelations: true,
-      },
+  async getRooms(username: string) {
+    const rooms = await this.roomRepository.findBy({
+      userRoomRelations: { user: { username: username } },
     });
 
-    if (!user) throw new NotFoundException('User not found');
-    const userRoomRelations = user.userRoomRelations;
-
-    const rooms = await Promise.all(
-      userRoomRelations.map(async (userRoomRelation) => {
-        return await this.userRoomRelationRepository.findOne({
-          where: {
-            id: userRoomRelation.id,
-          },
-          relations: {
-            room: true,
-          },
-        });
-      }),
-    );
-
-    return rooms;
+    return rooms.map((room) => new TransferRoomDto(room));
   }
 
   async updateRefreshToken(username: string) {
