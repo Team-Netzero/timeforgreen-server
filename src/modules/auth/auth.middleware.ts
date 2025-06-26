@@ -30,6 +30,7 @@ export class AuthMiddleware implements NestMiddleware {
           sameSite: 'lax',
           secure: false,
           maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+          path: '/',
         });
 
         req.body.username = decoded.username;

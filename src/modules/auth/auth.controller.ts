@@ -19,6 +19,7 @@ export class AuthController {
       sameSite: 'lax',
       secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+      path: '/',
     });
 
     await this.userService.updateRefreshToken(username);
@@ -38,6 +39,7 @@ export class AuthController {
       sameSite: 'lax',
       secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
+      path: '/',
     });
 
     await this.userService.updateRefreshToken(username);
