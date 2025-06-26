@@ -16,12 +16,11 @@ import { Subject } from 'src/commons/enums/subject';
 @Controller('room')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
-  /*
+
   @Get('search')
   async searchRooms(@Req() req: Request, @Res() res: Response) {
     return await this.roomService.findBySearch(req.body.search);
   }
-    */
 
   @Post('user')
   async addUser(@Req() req: Request, @Res() res: Response) {

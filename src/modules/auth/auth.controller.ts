@@ -23,6 +23,8 @@ export class AuthController {
     });
 
     await this.userService.updateRefreshToken(username);
+
+    res.send();
   }
 
   @Post('login')
