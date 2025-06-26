@@ -14,17 +14,9 @@ export class AuthController {
   async join(@Req() req: Request, @Res() res: Response) {
     const username = await this.userService.create(req.body.createUserDto);
 
-    res.cookie('accessToken', this.userService.getAccessToken(username), {
-      httpOnly: true,
-      sameSite: 'none',
-      secure: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
-      path: '/',
-    });
-
     await this.userService.updateRefreshToken(username);
 
-    res.send();
+    res.json({ accessToken: this.userService.getAccessToken(username) });
   }
 
   @Post('login')
@@ -34,17 +26,9 @@ export class AuthController {
       req.body.password,
     );
 
-    res.cookie('accessToken', this.userService.getAccessToken(username), {
-      httpOnly: true,
-      sameSite: 'none',
-      secure: true,
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7d
-      path: '/',
-    });
-
     await this.userService.updateRefreshToken(username);
 
-    res.send();
+    res.json({ accessToken: this.userService.getAccessToken(username) });
   }
 
   @Post('logout')
@@ -52,5 +36,12 @@ export class AuthController {
     res.cookie('accessToken', '');
 
     res.send();
+  }
+
+  @Post('refresh')
+  async refresh(@Req() req: Request, @Res() res: Response) {
+    res.json({
+      accessToken: await this.authService.refresh(req.cookies['accessToken']),
+    });
   }
 }
