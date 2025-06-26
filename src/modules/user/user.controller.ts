@@ -7,7 +7,14 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('mission')
-  async createMission(@Req() req: Request, @Res() res: Response) {}
+  async createMission(@Req() req: Request, @Res() res: Response) {
+    await this.userService.createMission(
+      req.body.username,
+      req.body.createMissionDto,
+    );
+
+    res.send();
+  }
 
   @Get('missions')
   async getMissions(@Req() req: Request, @Res() res: Response) {

@@ -53,14 +53,21 @@ export class UserService {
     const room = await this.roomRepository.findOneBy({
       id: createMissionDto.roomId,
     });
+    if (!room) throw new NotFoundException('Room not found');
 
-    /*
     const missionInstance = this.missionRepository.create({
       subject: createMissionDto.subject,
       user: user,
       room: room,
     });
-    */
+
+    const mission = await this.missionRepository.save(missionInstance);
+    if (!mission)
+      throw new InternalServerErrorException(
+        'Failed to create mission due to unknown error',
+      );
+
+    return;
   }
 
   findAll() {
