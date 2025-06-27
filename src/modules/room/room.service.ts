@@ -62,8 +62,6 @@ export class RoomService {
       },
     });
 
-    console.log(users);
-
     const userDtos = await Promise.all(
       users.map(async (user) => {
         const userRoomRelation =
@@ -71,7 +69,6 @@ export class RoomService {
             user: { username: user.username },
             room: { id: roomId },
           });
-        console.log(userRoomRelation);
         const role = userRoomRelation!.role;
         return new ReturnUserDto(user, role);
       }),

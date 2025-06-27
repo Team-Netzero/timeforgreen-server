@@ -13,8 +13,6 @@ export class AuthController {
   @Post('join')
   async join(@Req() req: Request, @Res() res: Response) {
     const user = await this.userService.create(req.body.createUserDto);
-    console.log(user.username);
-    console.log(user.refreshToken);
 
     res.cookie('accessToken', this.userService.getAccessToken(user.username), {
       httpOnly: true,
