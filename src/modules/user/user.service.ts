@@ -69,6 +69,7 @@ export class UserService {
   }
 
   async createRoom(username: string, createRoomDto: CreateRoomDto) {
+    console.log('0');
     if (!(await this.userRepository.existsBy({ username: username })))
       throw new NotFoundException('User not exist');
     const roomInstance = this.roomRepository.create({
@@ -76,28 +77,27 @@ export class UserService {
       activated: true,
       allowNotificationAt: createRoomDto.allowNotificationAt,
     });
-
+    console.log('1');
     const room = await this.roomRepository.save(roomInstance);
     if (!room)
       throw new InternalServerErrorException(
         'Creating room failed due to unknown error',
       );
-
+    console.log('2');
     const userRoomRelationInstance = this.userRoomRelationRepository.create({
       user: { username: username },
       room: { id: room.id },
       role: Role.HOST,
     });
-
+    console.log('3');
     const userRoomRelation = await this.userRoomRelationRepository.save(
       userRoomRelationInstance,
     );
-    console.log(userRoomRelation);
     if (!userRoomRelation)
       throw new InternalServerErrorException(
         'Creating room relation failed due to unknown error',
       );
-
+    console.log('4');
     return room.id;
   }
 
