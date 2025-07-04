@@ -1,77 +1,71 @@
-import { Controller, Delete, Get, Param, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Res,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { Request, Response } from 'express';
+import { CreateRoomDto } from '../room/dto/create-room.dto';
+import { CreateMissionDto } from '../mission/dto/create-mission.dto';
+import { ReturnMissionDto } from '../mission/dto/return-mission.dto';
+import { TransferRoomDto } from '../room/dto/transfer-room.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post(':username/room')
-  async createRoom(
+  async createRoomAndReturnId(
     @Param('username') username: string,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const roomId = await this.userService.createRoom(
-      username,
-      req.body.createRoomDto,
-    );
-
-    res.json({ roomId: roomId });
+    @Body() createRoomDto: CreateRoomDto,
+  ): Promise<string> {
+    return await this.userService.createRoom(username, createRoomDto);
   }
 
   @Post(':username/mission')
   async createMission(
     @Param('username') username: string,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    await this.userService.createMission(username, req.body.createMissionDto);
+    @Body() createMissionDto: CreateMissionDto,
+  ): Promise<void> {
+    await this.userService.createMission(username, createMissionDto);
 
-    res.send();
+    return;
   }
 
   @Get(':username/mission/today')
   async getMissionsForToday(
     @Param('username') username: string,
-    @Res() res: Response,
-  ) {
-    const missions = await this.userService.getMissionsForToday(username);
-
-    res.json(missions);
+  ): Promise<ReturnMissionDto[]> {
+    return await this.userService.getMissionsForToday(username);
   }
 
   @Get(':username/missions')
   async getMissions(
     @Param('username') username: string,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const missions = await this.userService.getMissions(username);
-
-    res.json(missions);
+  ): Promise<ReturnMissionDto[]> {
+    return await this.userService.getMissions(username);
   }
 
   @Get(':username/rooms')
   async getRooms(
     @Param('username') username: string,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const rooms = await this.userService.getRooms(username);
-
-    res.json(rooms);
+  ): Promise<TransferRoomDto[]> {
+    return await this.userService.getRooms(username);
   }
 
   @Delete(':username')
   async remove(
     @Param('username') username: string,
-    @Req() req: Request,
     @Res() res: Response,
-  ) {
+  ): Promise<void> {
     await this.userService.remove(username);
     res.cookie('accessToken', '');
 
     res.send();
+    return;
   }
 }

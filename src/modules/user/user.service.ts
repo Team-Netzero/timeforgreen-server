@@ -38,101 +38,101 @@ export class UserService {
 
     private readonly jwtService: JwtService,
   ) {}
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto): Promise<User> {
     if (
       await this.userRepository.existsBy({ username: createUserDto.username })
     )
       throw new UnprocessableEntityException('Username already exists');
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const hashedPassword: string = await bcrypt.hash(
+      createUserDto.password,
+      10,
+    );
 
-    const refreshToken = this.jwtService.sign(
+    const refreshToken: string = this.jwtService.sign(
       { username: createUserDto.username },
       {
         expiresIn: '7d',
       },
     );
 
-    const userInstance = this.userRepository.create({
+    const userInstance: User = this.userRepository.create({
       username: createUserDto.username,
       hashedPassword: hashedPassword,
       refreshToken: refreshToken,
     });
 
-    const user = await this.userRepository.save(userInstance);
-    if (!user)
-      throw new InternalServerErrorException(
-        'Failed to create user due to unknown error',
-      );
+    const user: User = await this.userRepository.save(userInstance);
 
     return user;
   }
 
-  async createRoom(username: string, createRoomDto: CreateRoomDto) {
-    console.log('0');
+  async createRoom(
+    username: string,
+    createRoomDto: CreateRoomDto,
+  ): Promise<string> {
     if (!(await this.userRepository.existsBy({ username: username })))
       throw new NotFoundException('User not exist');
-    const roomInstance = this.roomRepository.create({
+
+    const roomInstance: Room = this.roomRepository.create({
       title: createRoomDto.title,
       activated: true,
       allowNotificationAt: createRoomDto.allowNotificationAt,
     });
-    console.log('1');
-    const room = await this.roomRepository.save(roomInstance);
-    if (!room)
-      throw new InternalServerErrorException(
-        'Creating room failed due to unknown error',
-      );
-    console.log('2');
-    const userRoomRelationInstance = this.userRoomRelationRepository.create({
-      user: { username: username },
-      room: { id: room.id },
-      role: Role.HOST,
-    });
-    console.log('3');
-    const userRoomRelation = await this.userRoomRelationRepository.save(
-      userRoomRelationInstance,
-    );
+
+    const room: Room = await this.roomRepository.save(roomInstance);
+
+    const userRoomRelationInstance: UserRoomRelation =
+      this.userRoomRelationRepository.create({
+        user: { username: username },
+        room: { id: room.id },
+        role: Role.HOST,
+      });
+
+    const userRoomRelation: UserRoomRelation =
+      await this.userRoomRelationRepository.save(userRoomRelationInstance);
     if (!userRoomRelation)
       throw new InternalServerErrorException(
         'Creating room relation failed due to unknown error',
       );
-    console.log('4');
     return room.id;
   }
 
-  async createMission(username: string, createMissionDto: CreateMissionDto) {
-    const user = await this.userRepository.findOneBy({ username: username });
+  async createMission(
+    username: string,
+    createMissionDto: CreateMissionDto,
+  ): Promise<void> {
+    const user: User | null = await this.userRepository.findOneBy({
+      username: username,
+    });
     if (!user) throw new NotFoundException('User not found');
 
-    const room = await this.roomRepository.findOneBy({
+    const room: Room | null = await this.roomRepository.findOneBy({
       id: createMissionDto.roomId,
     });
     if (!room) throw new NotFoundException('Room not found');
 
-    const missionInstance = this.missionRepository.create({
+    const missionInstance: Mission = this.missionRepository.create({
       subject: createMissionDto.subject,
       user: user,
       room: room,
     });
 
-    const mission = await this.missionRepository.save(missionInstance);
-    if (!mission)
-      throw new InternalServerErrorException(
-        'Failed to create mission due to unknown error',
-      );
+    await this.missionRepository.save(missionInstance);
 
     return;
   }
 
-  async findOne(username: string) {
-    const user = await this.userRepository.findOneBy({ username: username });
+  async findOne(username: string): Promise<TransferUserDto> {
+    const user: User | null = await this.userRepository.findOneBy({
+      username: username,
+    });
     if (!user) throw new NotFoundException('User not found');
     return new TransferUserDto(user);
   }
 
-  async getMissions(username: string) {
-    const missions = await this.missionRepository.find({
+  async getMissions(username: string): Promise<ReturnMissionDto[]> {
+    const missions: Mission[] = await this.missionRepository.find({
       where: { user: { username: username } },
       relations: { room: true },
     });
@@ -141,8 +141,8 @@ export class UserService {
     });
   }
 
-  async getMissionsForToday(username: string) {
-    const missions = await this.missionRepository.find({
+  async getMissionsForToday(username: string): Promise<ReturnMissionDto[]> {
+    const missions: Mission[] = await this.missionRepository.find({
       where: {
         user: { username: username },
         createdAt: Between(startOfDay(new Date()), endOfDay(new Date())),
@@ -155,7 +155,7 @@ export class UserService {
     });
   }
 
-  getAccessToken(username: string) {
+  getAccessToken(username: string): string {
     return this.jwtService.sign(
       { username: username },
       {
@@ -164,16 +164,16 @@ export class UserService {
     );
   }
 
-  async getRooms(username: string) {
-    const rooms = await this.roomRepository.findBy({
+  async getRooms(username: string): Promise<TransferRoomDto[]> {
+    const rooms: Room[] = await this.roomRepository.findBy({
       userRoomRelations: { user: { username: username } },
     });
 
     return rooms.map((room) => new TransferRoomDto(room));
   }
 
-  async updateRefreshToken(username: string) {
-    const refreshToken = this.jwtService.sign(
+  async updateRefreshToken(username: string): Promise<void> {
+    const refreshToken: string = this.jwtService.sign(
       { username: username },
       {
         expiresIn: '7d',
@@ -187,7 +187,7 @@ export class UserService {
     return;
   }
 
-  async remove(username: string) {
+  async remove(username: string): Promise<void> {
     await this.userRepository.delete({ username: username });
     return;
   }

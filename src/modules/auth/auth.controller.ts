@@ -1,7 +1,10 @@
-import { Controller, Post, Req, Res } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Response } from 'express';
 import { AuthService } from './auth.service';
 import { UserService } from '../user/user.service';
+import { CreateUserDto } from '../user/dto/create-user.dto';
+import { User } from '../user/user.entity';
+import { LoginUserDto } from '../user/dto/login-user.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -11,8 +14,11 @@ export class AuthController {
   ) {}
 
   @Post('join')
-  async join(@Req() req: Request, @Res() res: Response) {
-    const user = await this.userService.create(req.body.createUserDto);
+  async join(
+    @Body() createUserDto: CreateUserDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    const user: User = await this.userService.create(createUserDto);
 
     res.cookie('accessToken', this.userService.getAccessToken(user.username), {
       httpOnly: true,
@@ -23,13 +29,17 @@ export class AuthController {
     });
 
     res.send();
+    return;
   }
 
   @Post('login')
-  async login(@Req() req: Request, @Res() res: Response) {
-    const username = await this.authService.validatePassword(
-      req.body.username,
-      req.body.password,
+  async login(
+    @Body() loginUserDto: LoginUserDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    const username: string = await this.authService.validatePassword(
+      loginUserDto.username,
+      loginUserDto.password,
     );
 
     res.cookie('accessToken', this.userService.getAccessToken(username), {
@@ -43,12 +53,14 @@ export class AuthController {
     await this.userService.updateRefreshToken(username);
 
     res.send();
+    return;
   }
 
   @Post('logout')
-  logout(@Res() res: Response) {
+  logout(@Res() res: Response): void {
     res.cookie('accessToken', '');
 
     res.send();
+    return;
   }
 }

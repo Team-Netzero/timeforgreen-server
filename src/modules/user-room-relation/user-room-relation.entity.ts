@@ -1,10 +1,4 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Room } from '../room/room.entity';
 import { Role } from 'src/commons/enums/role';
@@ -12,14 +6,14 @@ import { Role } from 'src/commons/enums/role';
 @Entity()
 export class UserRoomRelation {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @ManyToOne(() => User, (user) => user.userRoomRelations)
-  user: User;
+  user!: User;
 
   @ManyToOne(() => Room, (room) => room.userRoomRelations)
-  room: Room;
+  room!: Room;
 
   @Column()
-  role: Role;
+  role!: Role;
 }

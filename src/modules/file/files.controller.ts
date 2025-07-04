@@ -17,13 +17,13 @@ export class FilesController {
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(@UploadedFile() file: Express.Multer.File) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File): Promise<string> {
     if (!file) {
       throw new Error('파일이 업로드되지 않았습니다.');
     }
 
     try {
-      return this.filesService.uploadFile(file);
+      return await this.filesService.uploadFile(file);
     } catch (error) {
       console.error('파일 업로드 실패:', error);
       throw new Error(
@@ -36,7 +36,9 @@ export class FilesController {
 
   @Post('check-plugged')
   @UseInterceptors(FileInterceptor('file'))
-  async checkPlugged(@UploadedFile() file: Express.Multer.File) {
+  async checkPlugged(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<boolean> {
     try {
       if (!file) {
         throw new Error('파일이 업로드되지 않았습니다.');
@@ -49,7 +51,7 @@ export class FilesController {
   }
 
   @Get('sas-url')
-  getSasUrl(@Query('fileName') fileName: string) {
-    return { url: this.filesService.getSasUrl(fileName) };
+  getSasUrl(@Query('fileName') fileName: string): string {
+    return this.filesService.getSasUrl(fileName);
   }
 }

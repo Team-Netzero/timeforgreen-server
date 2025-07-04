@@ -6,6 +6,8 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from '../user/user.service';
+import { DecodedToken } from './dto/decoded-token.dto';
+import { TransferUserDto } from '../user/dto/transfer-user.dto';
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
@@ -13,17 +15,23 @@ export class AuthMiddleware implements NestMiddleware {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
   ) {}
-  async use(req: Request, res: Response, next: NextFunction) {
+  async use(req: Request, res: Response, next: NextFunction): Promise<void> {
+    const accessToken: string = req.cookies['accessToken'] as string;
     try {
-      const payload = this.jwtService.verify(req.cookies['accessToken']);
+      this.jwtService.verify(accessToken);
     } catch {
-      const decoded = this.jwtService.decode(req.cookies['accessToken']);
+      const decoded: DecodedToken = this.jwtService.decode(accessToken);
 
-      const user = await this.userService.findOne(decoded.username);
+      const user: TransferUserDto = await this.userService.findOne(
+        decoded.username,
+      );
       try {
         await this.jwtService.verify(user.refreshToken!);
 
-        const newAccessToken = this.userService.getAccessToken(user.username);
+        const newAccessToken: string = this.userService.getAccessToken(
+          user.username,
+        );
+
         res.cookie('accessToken', newAccessToken, {
           httpOnly: true,
           sameSite: 'lax',
@@ -36,5 +44,6 @@ export class AuthMiddleware implements NestMiddleware {
       }
     }
     next();
+    return;
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
   BlobServiceClient,
@@ -7,9 +7,11 @@ import {
   BlobSASPermissions,
   SASProtocol,
   StorageSharedKeyCredential,
+  BlockBlobClient,
 } from '@azure/storage-blob';
 import { v4 as uuidv4 } from 'uuid';
 import fetch from 'node-fetch';
+import { OpenAIResponse } from './dto/openai-response.dto';
 
 @Injectable()
 export class FilesService {
@@ -17,10 +19,10 @@ export class FilesService {
   private containerClient: ContainerClient;
 
   constructor(private configService: ConfigService) {
-    const connectionString = this.configService.get<string>(
+    const connectionString: string | undefined = this.configService.get<string>(
       'AZURE_STORAGE_CONNECTION_STRING',
     );
-    const containerName = this.configService.get<string>(
+    const containerName: string | undefined = this.configService.get<string>(
       'AZURE_STORAGE_CONTAINER_NAME',
     );
     if (!connectionString || !containerName) {
@@ -36,8 +38,9 @@ export class FilesService {
   }
 
   async uploadFile(file: Express.Multer.File): Promise<string> {
-    const fileName = `${uuidv4()}-${file.originalname}`;
-    const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
+    const fileName: string = `${uuidv4()}-${file.originalname}`;
+    const blockBlobClient: BlockBlobClient =
+      this.containerClient.getBlockBlobClient(fileName);
 
     try {
       await blockBlobClient.upload(file.buffer, file.size, {
@@ -59,7 +62,8 @@ export class FilesService {
 
   async deleteFile(fileName: string): Promise<boolean> {
     try {
-      const blockBlobClient = this.containerClient.getBlockBlobClient(fileName);
+      const blockBlobClient: BlockBlobClient =
+        this.containerClient.getBlockBlobClient(fileName);
       await blockBlobClient.delete();
       return true;
     } catch (error) {
@@ -69,25 +73,23 @@ export class FilesService {
   }
 
   getSasUrl(fileName: string, expiresInMinutes = 60): string {
-    const accountName = this.configService.get<string>(
+    const accountName: string | undefined = this.configService.get<string>(
       'AZURE_STORAGE_ACCOUNT_NAME',
     );
-    const accountKey = this.configService.get<string>(
+    const accountKey: string | undefined = this.configService.get<string>(
       'AZURE_STORAGE_ACCOUNT_KEY',
     );
-    const containerName = this.configService.get<string>(
+    const containerName: string | undefined = this.configService.get<string>(
       'AZURE_STORAGE_CONTAINER_NAME',
     );
     if (!accountName || !accountKey || !containerName) {
       throw new Error('Azure Strage env needed');
     }
 
-    const sharedKeyCredential = new StorageSharedKeyCredential(
-      accountName,
-      accountKey,
-    );
+    const sharedKeyCredential: StorageSharedKeyCredential =
+      new StorageSharedKeyCredential(accountName, accountKey);
 
-    const sasToken = generateBlobSASQueryParameters(
+    const sasToken: string = generateBlobSASQueryParameters(
       {
         containerName,
         blobName: fileName,
@@ -100,7 +102,7 @@ export class FilesService {
       sharedKeyCredential,
     ).toString();
 
-    const url = `https://${accountName}.blob.core.windows.net/${containerName}/${fileName}?${sasToken}`;
+    const url: string = `https://${accountName}.blob.core.windows.net/${containerName}/${fileName}?${sasToken}`;
     return url;
   }
 
@@ -114,21 +116,20 @@ export class FilesService {
     return fileNames;
   }
 
-  async checkPlugged(
-    file: Express.Multer.File,
-  ): Promise<{ isPlugged: boolean }> {
-    const apiKey = this.configService.get<string>('OPENAI_API_KEY');
+  async checkPlugged(file: Express.Multer.File): Promise<boolean> {
+    const apiKey: string | undefined =
+      this.configService.get<string>('OPENAI_API_KEY');
     if (!apiKey) {
       throw new Error('OPENAI_API_KEY 환경변수가 필요합니다.');
     }
     // OpenAI Vision API 엔드포인트
-    const url = 'https://api.openai.com/v1/chat/completions';
+    const url: string = 'https://api.openai.com/v1/chat/completions';
     // 프롬프트: 플러그가 꽂혀있는지 여부를 묻는 질문
-    const prompt =
+    const prompt: string =
       '이 사진에서 플러그가 콘센트에 꽂혀 있나요? "뽑혀있으면 뽑혀있다, 아니면 꽂혀있다"로만 답해주세요.';
     // base64 인코딩
-    const base64Image = file.buffer.toString('base64');
-    const response = await fetch(url, {
+    const base64Image: string = file.buffer.toString('base64');
+    const response: fetch.Response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -156,12 +157,16 @@ export class FilesService {
     if (!response.ok) {
       throw new Error('OpenAI API 호출 실패: ' + response.statusText);
     }
-    const data = (await response.json()) as {
-      choices?: { message?: { content?: string } }[];
-    };
-    const text = data.choices?.[0]?.message?.content?.trim?.() || '';
+    const data: OpenAIResponse = (await response.json()) as OpenAIResponse;
+    const text: string | undefined =
+      data.choices?.[0]?.message?.content?.trim?.();
     // "뽑혀있다"라는 단어가 포함되어 있으면 true, 아니면 false
-    const isPlugged = typeof text === 'string' && text.includes('뽑혀');
-    return { isPlugged: !!isPlugged };
+    if (!text)
+      throw new InternalServerErrorException(
+        'Cannot get proper response from OpenAI due to unknown reason',
+      );
+    const isPlugged: boolean =
+      typeof text === 'string' && text.includes('뽑혀');
+    return isPlugged;
   }
 }

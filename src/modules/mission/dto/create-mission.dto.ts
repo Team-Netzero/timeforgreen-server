@@ -1,6 +1,6 @@
 import { Subject } from 'src/commons/enums/subject';
 
-export class CreateMissionDto {
+export type CreateMissionDto = {
   subject: Subject;
   roomId: string;
-}
+};

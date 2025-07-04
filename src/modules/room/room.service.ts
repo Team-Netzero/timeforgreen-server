@@ -30,15 +30,17 @@ export class RoomService {
     private readonly missionRepository: Repository<Mission>,
   ) {}
 
-  async findBySearch(search: string) {
-    const keywords = search.split(' ');
-    const rooms = await this.roomRepository.findBy({});
-    const roomDtos = rooms.map((room) => new TransferRoomDto(room));
+  async findBySearch(search: string): Promise<TransferRoomDto[]> {
+    const keywords: string[] = search.split(' ');
+    const rooms: Room[] = await this.roomRepository.findBy({});
+    const roomDtos: TransferRoomDto[] = rooms.map(
+      (room) => new TransferRoomDto(room),
+    );
     roomDtos.sort(function (a, b) {
-      const aCount = keywords.filter((keyword) =>
+      const aCount: number = keywords.filter((keyword) =>
         a.title.includes(keyword),
       ).length;
-      const bCount = keywords.filter((keyword) =>
+      const bCount: number = keywords.filter((keyword) =>
         b.title.includes(keyword),
       ).length;
 
@@ -48,28 +50,32 @@ export class RoomService {
     return roomDtos;
   }
 
-  async getRoom(roomId: string) {
-    const room = await this.roomRepository.findOneBy({ id: roomId });
+  async getRoom(roomId: string): Promise<TransferRoomDto> {
+    const room: Room | null = await this.roomRepository.findOneBy({
+      id: roomId,
+    });
     if (!room) throw new NotFoundException('Room not found');
     return new TransferRoomDto(room);
   }
 
-  async getUsers(roomId: string) {
-    const users = await this.userRepository.find({
+  async getUsers(roomId: string): Promise<ReturnUserDto[]> {
+    const users: User[] = await this.userRepository.find({
       where: { userRoomRelations: { room: { id: roomId } } },
       relations: {
         userRoomRelations: true,
       },
     });
 
-    const userDtos = await Promise.all(
+    const userDtos: ReturnUserDto[] = await Promise.all(
       users.map(async (user) => {
-        const userRoomRelation =
+        const userRoomRelation: UserRoomRelation | null =
           await this.userRoomRelationRepository.findOneBy({
             user: { username: user.username },
             room: { id: roomId },
           });
-        const role = userRoomRelation!.role;
+        if (!userRoomRelation)
+          throw new InternalServerErrorException('Room has no user');
+        const role: Role = userRoomRelation.role;
         return new ReturnUserDto(user, role);
       }),
     );
@@ -77,33 +83,28 @@ export class RoomService {
     return userDtos;
   }
 
-  async getMissions(roomId: string) {
-    const missions = await this.missionRepository.findBy({
+  async getMissions(roomId: string): Promise<ReturnMissionDto[]> {
+    const missions: Mission[] = await this.missionRepository.findBy({
       room: { id: roomId },
     });
 
     return missions.map((mission) => new ReturnMissionDto(mission));
   }
 
-  async addUser(username: string, roomId: string) {
-    const userRoomRelationInstance = this.userRoomRelationRepository.create({
-      user: { username: username },
-      room: { id: roomId },
-      role: Role.PARTICIPANT,
-    });
+  async addUser(username: string, roomId: string): Promise<void> {
+    const userRoomRelationInstance: UserRoomRelation =
+      this.userRoomRelationRepository.create({
+        user: { username: username },
+        room: { id: roomId },
+        role: Role.PARTICIPANT,
+      });
 
-    const userRoomRelation = await this.userRoomRelationRepository.save(
-      userRoomRelationInstance,
-    );
-    if (!userRoomRelation)
-      throw new InternalServerErrorException(
-        'Adding user failed due to unknown error',
-      );
+    await this.userRoomRelationRepository.save(userRoomRelationInstance);
 
     return;
   }
 
-  async removeUser(username: string, roomId: string) {
+  async removeUser(username: string, roomId: string): Promise<void> {
     await this.userRoomRelationRepository.delete({
       user: { username: username },
       room: { id: roomId },

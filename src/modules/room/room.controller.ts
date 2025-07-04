@@ -1,71 +1,52 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Req,
-  Res,
-} from '@nestjs/common';
+import { Controller, Get, Post, Param, Delete, Body } from '@nestjs/common';
 import { RoomService } from './room.service';
-import { Request, Response } from 'express';
-import { Subject } from 'src/commons/enums/subject';
+import { TransferRoomDto } from './dto/transfer-room.dto';
+import { ReturnMissionDto } from '../mission/dto/return-mission.dto';
+import { ReturnUserDto } from '../user/dto/return-user.dto';
 
 @Controller('room')
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
   @Get('search')
-  async searchRooms(@Req() req: Request, @Res() res: Response) {
-    const rooms = await this.roomService.findBySearch(req.body.search);
-
-    res.json(rooms);
+  async searchRooms(
+    @Body('search') search: string,
+  ): Promise<TransferRoomDto[]> {
+    return await this.roomService.findBySearch(search);
   }
 
   @Get(':id')
-  async getRoom(@Param('id') id: string, @Res() res: Response) {
-    res.json(await this.roomService.getRoom(id));
+  async getRoom(@Param('id') id: string): Promise<TransferRoomDto> {
+    return await this.roomService.getRoom(id);
   }
 
   @Get(':id/missions')
-  async getMissions(
-    @Param('id') id: string,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    const missions = await this.roomService.getMissions(id);
-
-    res.json(missions);
+  async getMissions(@Param('id') id: string): Promise<ReturnMissionDto[]> {
+    return await this.roomService.getMissions(id);
   }
 
   @Get(':id/users')
-  async getUsers(@Param('id') id: string, @Res() res: Response) {
-    const users = await this.roomService.getUsers(id);
-
-    res.json(users);
+  async getUsers(@Param('id') id: string): Promise<ReturnUserDto[]> {
+    return await this.roomService.getUsers(id);
   }
 
   @Post(':id/user')
   async addUser(
     @Param('id') id: string,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    await this.roomService.addUser(req.body.username, id);
+    @Body('username') username: string,
+  ): Promise<void> {
+    await this.roomService.addUser(username, id);
 
-    res.send();
+    return;
   }
 
   @Delete(':id/user')
   async removeUser(
     @Param('id') id: string,
-    @Req() req: Request,
-    @Res() res: Response,
-  ) {
-    await this.roomService.removeUser(req.body.username, id);
+    @Body('username') username: string,
+  ): Promise<void> {
+    await this.roomService.removeUser(username, id);
 
-    res.send();
+    return;
   }
 }

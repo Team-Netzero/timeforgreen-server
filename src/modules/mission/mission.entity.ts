@@ -12,17 +12,17 @@ import { Room } from '../room/room.entity';
 @Entity()
 export class Mission {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id!: string;
 
   @Column()
-  subject: Subject;
+  subject!: Subject;
 
   @CreateDateColumn()
-  createdAt: Date;
+  createdAt!: Date;
 
   @ManyToOne(() => User, (user) => user.missions)
-  user: User;
+  user!: User;
 
   @ManyToOne(() => Room, (room) => room.missions)
-  room: Room;
+  room!: Room;
 }

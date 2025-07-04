@@ -5,23 +5,23 @@ import { Mission } from '../mission/mission.entity';
 @Entity()
 export class User {
   @PrimaryColumn()
-  username: string;
+  username!: string;
 
   @Column({ nullable: true })
-  profileImage: string;
+  profileImage: string = 'defaultProfileImageUrl';
 
   @Column()
-  hashedPassword: string;
+  hashedPassword!: string;
 
   @Column({ nullable: true })
-  refreshToken: string;
+  refreshToken!: string;
 
   @OneToMany(
     () => UserRoomRelation,
     (userRoomRelation) => userRoomRelation.user,
   )
-  userRoomRelations: UserRoomRelation[];
+  userRoomRelations!: UserRoomRelation[];
 
   @OneToMany(() => Mission, (mission) => mission.user)
-  missions: Mission[];
+  missions!: Mission[];
 }

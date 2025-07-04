@@ -1,0 +1,23 @@
+{
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["@typescript-eslint"],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended"],
+  "rules": {
+    "@typescript-eslint/explicit-function-return-type": ["warning"],
+    "@typescript-eslint/explicit-module-boundary-types": ["warning"],
+    "@typescript-eslint/explicit-member-accessibility": [
+      "warning",
+      { "accessibility": "explicit" }
+    ],
+    "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/typedef": [
+      "warning",
+      {
+        "variableDeclaration": true,
+        "parameter": true,
+        "propertyDeclaration": true,
+        "memberVariableDeclaration": true
+      }
+    ]
+  }
+}
